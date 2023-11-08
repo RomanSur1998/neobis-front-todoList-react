@@ -1,7 +1,12 @@
+import { useState } from "react";
+import Todo from "./components/todo";
+
 function App() {
+  const [task, setTask] = useState("");
+  console.log(task, "task ");
   return (
     <>
-      <p>Click on the Vite and React logos to learn more</p>
+      <Todo />
     </>
   );
 }
