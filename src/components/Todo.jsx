@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { deleteTask } from "./function";
+import "../styles/todo.css";
+// ! Сделать отдельную функцию по сохранению массива в loacalStorage
 
 const Todo = () => {
   const [task, setTask] = useState({
-    id: "",
+    id: generateRandomId(),
     task: "",
-    type: false,
+    type: "",
     done: false,
     editable: false,
   });
@@ -29,14 +30,18 @@ const Todo = () => {
     return Math.floor(Math.random() * 100000);
   }
 
-  function addTask(event) {
+  function addTask() {
     event.preventDefault();
     if (task.task) {
-      setTask({ ...task, id: generateRandomId() });
       let data = JSON.parse(localStorage.getItem("react-todo"));
       data.push(task);
       setTasks(data);
-      setTask({ ...task, task: "", id: generateRandomId() });
+      setTask({
+        ...task,
+        task: "",
+        id: generateRandomId(),
+        type: task.type ? task.type : "personal",
+      });
       localStorage.setItem("react-todo", JSON.stringify(data));
     } else {
       alert("Write a to-do");
@@ -66,13 +71,20 @@ const Todo = () => {
     setTasks(newTasks);
     setEditTask(newTasks[index]);
   }
-
-  function saveTask(id) {
+  function doneTodo(id) {
     const index = tasks.findIndex((task) => task.id === id);
     const newTasks = [...tasks];
-    (newTasks[index].editable = false),
-      (newTasks[index].task = editTask),
-      setTasks(newTasks);
+    newTasks[index].done = !newTasks[index].done;
+    setTasks(newTasks);
+    setEditTask(newTasks[index]);
+    localStorage.setItem("react-todo", JSON.stringify(newTasks));
+  }
+
+  function saveTask(index) {
+    const newTasks = [...tasks];
+    newTasks[index].task = editTask;
+    newTasks[index].editable = false;
+    setTasks(newTasks);
     localStorage.setItem("react-todo", JSON.stringify(newTasks));
   }
 
@@ -80,24 +92,30 @@ const Todo = () => {
     return tasks.map((elem, index) =>
       elem.editable ? (
         <div className="task-block" key={index}>
-          <input type="checkbox" />
+          <label>
+            <input
+              type="checkbox"
+              onChange={() => {
+                doneTodo(elem.id);
+              }}
+              checked={elem.done}
+              className="checked"
+            />
+            <span className={`checkbox ${elem.type}`}></span>
+          </label>
+
           <input
+            className={elem.done ? "done" : null}
             type="text"
             value={editTask.task}
             onChange={(e) => {
               setEditTask(e.target.value);
             }}
             onBlur={() => {
-              saveTask(elem.id);
+              saveTask(index);
             }}
           />
-          <button
-            onClick={() => {
-              editTodo(elem.id);
-            }}
-          >
-            Edit
-          </button>
+          <button>Edit</button>
           <button
             onClick={() => {
               deleteTask(elem.id);
@@ -107,9 +125,20 @@ const Todo = () => {
           </button>
         </div>
       ) : (
-        <div className="task-block" key={index}>
-          <input type="checkbox" />
-          <h4>{elem.task}</h4>
+        <div className="task-block" key={elem.id}>
+          <label>
+            <input
+              type="checkbox"
+              onChange={() => {
+                doneTodo(elem.id);
+              }}
+              checked={elem.done}
+              className="checked"
+            />
+            <span className={`checkbox ${elem.type}`}></span>
+          </label>
+
+          <span className={elem.done ? "done" : null}>{elem.task}</span>
           <button
             onClick={() => {
               editTodo(elem.id);
@@ -147,24 +176,32 @@ const Todo = () => {
               <label htmlFor="business">
                 Business
                 <input
+                  className="checked"
                   type="checkbox"
                   id="business"
-                  onClick={() => {
-                    setTask({ ...task, type: "business" });
+                  value={"bisness"}
+                  onChange={(e) => {
+                    setTask({ ...task, type: e.target.value });
                   }}
+                  checked={task.type === "bisness"}
                 />
+                <span className="checkbox bisness"></span>
               </label>
             </div>
             <div>
               <label htmlFor="personal">
                 Personal
                 <input
+                  className="checked"
                   type="checkbox"
                   id="personal"
-                  onClick={() => {
-                    setTask({ ...task, type: "personal" });
+                  value={"personal"}
+                  onChange={(e) => {
+                    setTask({ ...task, type: e.target.value });
                   }}
+                  checked={task.type === "personal"}
                 />
+                <span className="checkbox personal"></span>
               </label>
             </div>
           </div>
