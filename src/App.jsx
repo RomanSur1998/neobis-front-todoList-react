@@ -1,9 +1,6 @@
-import { useState } from "react";
-import Todo from "./components/todo";
+import Todo from "./components/Todo";
 
 function App() {
-  const [task, setTask] = useState("");
-  console.log(task, "task ");
   return (
     <>
       <Todo />
